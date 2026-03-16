@@ -27,8 +27,8 @@
 		<url/>
 	</scm>
 	<properties>
-		<java.version>17</java.version>
-		<spring-ai.version>1.0.3</spring-ai.version>
+		<java.version>24</java.version>
+		<spring-ai.version>1.1.2</spring-ai.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -38,6 +38,30 @@
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-starter-model-ollama</artifactId>
+		</dependency>
+
+		<!-- RAG: PGVector store (versione gestita dal BOM 1.1.2) -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-vector-store-pgvector</artifactId>
+		</dependency>
+
+		<!-- RAG: Advisor (QuestionAnswerAdvisor) — modulo separato dal BOM 1.1.2 -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-advisors-vector-store</artifactId>
+		</dependency>
+
+		<!-- RAG: lettura documenti PDF/Word/TXT con Apache Tika (versione gestita dal BOM 1.1.2) -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-tika-document-reader</artifactId>
+		</dependency>
+
+		<!-- JPA / DataSource per PGVector (versione gestita da Spring Boot 3.5.6) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
 		<dependency>
