@@ -1,42 +1,155 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* ── Layout principale ──────────────────────────────────── */
+body {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+  min-height: 100vh;
+}
+
+.app-wrapper {
+  max-width: 860px;
+  margin: 2.5rem auto;
+  padding: 0 1rem;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* ── Card principale ────────────────────────────────────── */
+.chat-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.10);
+  overflow: hidden;
+}
+
+.chat-card .card-header {
+  background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
+  color: #fff;
+  padding: 1.1rem 1.5rem;
+  border-bottom: none;
+}
+
+.chat-card .card-header h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* ── Toggle pills ───────────────────────────────────────── */
+.mode-pill {
+  border-radius: 999px !important;
+  padding: 7px 22px !important;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+}
+
+.mode-pill:hover {
+  transform: translateY(-1px);
+}
+
+.mode-pill.active {
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+/* ── Upload box ─────────────────────────────────────────── */
+.upload-box {
+  background: #f0f9ff;
+  border: 1.5px dashed #60a5fa !important;
+  border-radius: 12px !important;
+}
+
+.upload-box .upload-label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 0.6rem;
+}
+
+/* ── Area messaggi ──────────────────────────────────────── */
+.messages-area {
+  height: 420px;
+  overflow-y: auto;
+  background: #f9fafb;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  scroll-behavior: smooth;
+}
+
+.messages-area::-webkit-scrollbar {
+  width: 5px;
+}
+
+.messages-area::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+/* ── Bubble messaggi ────────────────────────────────────── */
+.bubble {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: fadeSlide 0.2s ease-out;
+}
+
+.bubble-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  opacity: 0.75;
+}
+
+.bubble-user {
+  background: #dbeafe;
+  color: #1e3a8a;
+  margin-left: auto;
+}
+
+.bubble-model {
+  background: #dcfce7;
+  color: #14532d;
+  margin-right: auto;
+}
+
+.bubble-error {
+  background: #fee2e2;
+  color: #991b1b;
+  margin-right: auto;
+}
+
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Placeholder chat vuota ─────────────────────────────── */
+.chat-placeholder {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin-top: 8rem;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* ── Indicatore "sta elaborando" ────────────────────────── */
+.typing-indicator {
+  font-size: 0.82rem;
+  color: #6b7280;
+  padding: 4px 2px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* ── Input e bottone invia ──────────────────────────────── */
+.send-btn {
+  min-width: 90px;
+  font-weight: 700;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+/* ── Footer info ────────────────────────────────────────── */
+.mode-badge {
+  font-size: 0.72rem;
+  color: #9ca3af;
 }

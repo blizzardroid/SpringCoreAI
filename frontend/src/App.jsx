@@ -1,15 +1,25 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import './App.css';
 
 const API_BASE = 'http://localhost:8080/api';
 
+const LABELS = { user: '👤 Tu', model: '🤖 Modello', error: '⚠️ Errore' };
+const BUBBLE_CLASS = { user: 'bubble bubble-user', model: 'bubble bubble-model', error: 'bubble bubble-error' };
+
 function App() {
-    const [mode, setMode] = useState('chat');        // 'chat' | 'rag'
-    const [input, setInput] = useState('');
-    const [messages, setMessages] = useState([]);
+    const [mode, setMode]               = useState('chat');
+    const [input, setInput]             = useState('');
+    const [messages, setMessages]       = useState([]);
     const [uploadStatus, setUploadStatus] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
-    const [isSending, setIsSending] = useState(false);
-    const fileInputRef = useRef(null);
+    const [isSending, setIsSending]     = useState(false);
+    const fileInputRef  = useRef(null);
+    const messagesEndRef = useRef(null);
+
+    /* Scroll automatico all'ultimo messaggio */
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages, isSending]);
 
     const sendMessage = async () => {
         if (!input.trim() || isSending) return;
@@ -66,165 +76,123 @@ function App() {
         }
     };
 
-    /* ── stili inline ─────────────────────────────────────────────── */
-    const pill = (active) => ({
-        padding: '8px 22px',
-        background: active ? '#2563eb' : '#e5e7eb',
-        color: active ? '#fff' : '#374151',
-        border: 'none',
-        borderRadius: '999px',
-        cursor: 'pointer',
-        fontWeight: active ? '700' : '400',
-        fontSize: '14px',
-        transition: 'background 0.2s',
-    });
-
-    const bubble = {
-        user:  { background: '#dbeafe', color: '#1e3a8a' },
-        model: { background: '#dcfce7', color: '#14532d' },
-        error: { background: '#fee2e2', color: '#991b1b' },
-    };
-
-    const label = { user: '👤 Tu', model: '🤖 Modello', error: '⚠️ Errore' };
-
     return (
-        <div style={{ maxWidth: '820px', margin: '32px auto', padding: '24px', fontFamily: 'Arial, sans-serif' }}>
+        <div className="app-wrapper">
 
-            <h1 style={{ marginBottom: '24px', fontSize: '22px' }}>🤖 Spring AI — RAG Pipeline</h1>
+            {/* ── Card principale ── */}
+            <div className="card chat-card">
 
-            {/* ── toggle modalità ── */}
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                <button style={pill(mode === 'chat')} onClick={() => setMode('chat')}>
-                    💬 Chat Normale
-                </button>
-                <button style={pill(mode === 'rag')} onClick={() => setMode('rag')}>
-                    📚 Chat RAG
-                </button>
-            </div>
+                {/* Header */}
+                <div className="card-header">
+                    <h1>🤖 Spring AI — RAG Pipeline</h1>
+                </div>
 
-            {/* ── area upload (solo in modalità RAG) ── */}
-            {mode === 'rag' && (
-                <div style={{
-                    background: '#f0f9ff',
-                    border: '1.5px dashed #60a5fa',
-                    borderRadius: '10px',
-                    padding: '16px 20px',
-                    marginBottom: '18px',
-                }}>
-                    <p style={{ margin: '0 0 10px', color: '#1e40af', fontWeight: '700', fontSize: '14px' }}>
-                        📎 Carica un documento per indicizzarlo (PDF, DOCX, TXT, HTML…)
-                    </p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                <div className="card-body p-4">
+
+                    {/* ── Toggle modalità ── */}
+                    <div className="d-flex gap-2 mb-4">
+                        <button
+                            className={`btn mode-pill ${mode === 'chat' ? 'btn-primary active' : 'btn-outline-secondary'}`}
+                            onClick={() => setMode('chat')}
+                        >
+                            💬 Chat Normale
+                        </button>
+                        <button
+                            className={`btn mode-pill ${mode === 'rag' ? 'btn-primary active' : 'btn-outline-secondary'}`}
+                            onClick={() => setMode('rag')}
+                        >
+                            📚 Chat RAG
+                        </button>
+                    </div>
+
+                    {/* ── Upload box (solo RAG) ── */}
+                    {mode === 'rag' && (
+                        <div className="card upload-box p-3 mb-4">
+                            <p className="upload-label">
+                                📎 Carica un documento per indicizzarlo (PDF, DOCX, TXT, HTML…)
+                            </p>
+                            <div className="d-flex align-items-center gap-3 flex-wrap">
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={uploadFile}
+                                    className="d-none"
+                                    accept=".pdf,.docx,.doc,.txt,.html,.md,.odt"
+                                />
+                                <button
+                                    className="btn btn-primary btn-sm"
+                                    onClick={() => fileInputRef.current.click()}
+                                    disabled={isUploading}
+                                >
+                                    {isUploading ? '⏳ Indicizzazione…' : '📂 Scegli file'}
+                                </button>
+                                {uploadStatus && (
+                                    <span className={`small fw-semibold ${uploadStatus.ok ? 'text-success' : 'text-danger'}`}>
+                                        {uploadStatus.msg}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ── Area messaggi ── */}
+                    <div className="messages-area mb-3">
+                        {messages.length === 0 ? (
+                            <p className="chat-placeholder">
+                                {mode === 'rag'
+                                    ? '📄 Carica un documento, poi fai una domanda sul suo contenuto.'
+                                    : '💬 Scrivi un messaggio per iniziare la conversazione.'}
+                            </p>
+                        ) : (
+                            messages.map((msg, i) => (
+                                <div key={i} className={`${BUBBLE_CLASS[msg.sender]} mb-2`}>
+                                    <span className="bubble-label">{LABELS[msg.sender]}</span>
+                                    {msg.text}
+                                </div>
+                            ))
+                        )}
+                        {isSending && (
+                            <div className="typing-indicator">⏳ Il modello sta elaborando…</div>
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
+
+                    {/* ── Input + Invia ── */}
+                    <div className="input-group">
                         <input
-                            type="file"
-                            ref={fileInputRef}
-                            onChange={uploadFile}
-                            style={{ display: 'none' }}
-                            accept=".pdf,.docx,.doc,.txt,.html,.md,.odt"
+                            type="text"
+                            className="form-control"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+                            placeholder={mode === 'rag'
+                                ? 'Fai una domanda sul documento indicizzato…'
+                                : 'Scrivi un messaggio…'}
+                            disabled={isSending}
                         />
                         <button
-                            onClick={() => fileInputRef.current.click()}
-                            disabled={isUploading}
-                            style={{
-                                padding: '8px 18px',
-                                background: isUploading ? '#93c5fd' : '#3b82f6',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '7px',
-                                cursor: isUploading ? 'not-allowed' : 'pointer',
-                                fontSize: '13px',
-                            }}
+                            className="btn btn-primary send-btn"
+                            onClick={sendMessage}
+                            disabled={isSending}
                         >
-                            {isUploading ? '⏳ Indicizzazione…' : '📂 Scegli file'}
+                            {isSending ? (
+                                <><span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true" /> Invio…</>
+                            ) : 'Invia ➤'}
                         </button>
-                        {uploadStatus && (
-                            <span style={{ fontSize: '13px', color: uploadStatus.ok ? '#16a34a' : '#dc2626' }}>
-                                {uploadStatus.msg}
-                            </span>
-                        )}
                     </div>
-                </div>
-            )}
 
-            {/* ── messaggi ── */}
-            <div style={{
-                height: '420px',
-                border: '1px solid #d1d5db',
-                borderRadius: '10px',
-                overflowY: 'auto',
-                padding: '16px',
-                marginBottom: '16px',
-                background: '#f9fafb',
-            }}>
-                {messages.length === 0 ? (
-                    <p style={{ color: '#9ca3af', textAlign: 'center', marginTop: '160px', fontSize: '14px' }}>
-                        {mode === 'rag'
-                            ? '📄 Carica un documento, poi fai una domanda sul suo contenuto.'
-                            : '💬 Scrivi un messaggio per iniziare la conversazione.'}
+                    {/* ── Badge modalità ── */}
+                    <p className="mode-badge mt-3 mb-0">
+                        Modalità attiva:{' '}
+                        <strong>
+                            {mode === 'rag'
+                                ? '📚 RAG (PGVector + nomic-embed-text + qwen3:8b)'
+                                : '💬 Chat diretta (qwen3:8b)'}
+                        </strong>
                     </p>
-                ) : (
-                    messages.map((msg, i) => (
-                        <div key={i} style={{
-                            marginBottom: '12px',
-                            padding: '10px 14px',
-                            borderRadius: '8px',
-                            maxWidth: '85%',
-                            marginLeft: msg.sender === 'user' ? 'auto' : '0',
-                            ...bubble[msg.sender],
-                        }}>
-                            <strong style={{ fontSize: '12px', display: 'block', marginBottom: '4px' }}>
-                                {label[msg.sender]}
-                            </strong>
-                            <span style={{ fontSize: '14px', whiteSpace: 'pre-wrap' }}>{msg.text}</span>
-                        </div>
-                    ))
-                )}
-                {isSending && (
-                    <div style={{ padding: '10px 14px', color: '#6b7280', fontSize: '13px' }}>
-                        ⏳ Il modello sta elaborando…
-                    </div>
-                )}
-            </div>
 
-            {/* ── input ── */}
-            <div style={{ display: 'flex', gap: '10px' }}>
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                    placeholder={mode === 'rag'
-                        ? 'Fai una domanda sul documento indicizzato…'
-                        : 'Scrivi un messaggio…'}
-                    style={{
-                        flex: 1,
-                        padding: '10px 14px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                    }}
-                />
-                <button
-                    onClick={sendMessage}
-                    disabled={isSending}
-                    style={{
-                        padding: '10px 24px',
-                        background: isSending ? '#93c5fd' : '#2563eb',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: isSending ? 'not-allowed' : 'pointer',
-                        fontWeight: '700',
-                        fontSize: '14px',
-                    }}
-                >
-                    Invia
-                </button>
+                </div>
             </div>
-
-            <p style={{ marginTop: '14px', fontSize: '11px', color: '#9ca3af' }}>
-                Modalità attiva: <strong>{mode === 'rag' ? '📚 RAG (PGVector + nomic-embed-text + qwen3:8b)' : '💬 Chat diretta (qwen3:8b)'}</strong>
-            </p>
         </div>
     );
 }
